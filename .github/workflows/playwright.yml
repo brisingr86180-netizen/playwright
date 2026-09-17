@@ -1,14 +1,12 @@
-name: Playwright
+name: Playwright VTC
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 * * * *"
 
 jobs:
   test:
-    timeout-minutes: 10
     runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     steps:
       - name: Récupérer le code
@@ -21,10 +19,22 @@ jobs:
           cache: npm
 
       - name: Installer les dépendances
-        run: npm install
+        run: npm ci
 
-      - name: Installer Playwright
+      - name: Installer Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Lancer Playwright
-        run: npx playwright test
+      - name: Vérifier les fichiers
+        run: |
+          echo "=== Répertoire ==="
+          pwd
+          echo "=== Tests ==="
+          ls -la tests
+          echo "=== Fichier ciblé ==="
+          ls -la tests/vtc.spec.js
+
+      - name: Lancer la surveillance VTC
+        env:
+          VTC_USERNAME: ${{ secrets.VTC_USERNAME }}
+          VTC_PASSWORD: ${{ secrets.VTC_PASSWORD }}
+        run: npx playwright test tests/vtc.spec.js
