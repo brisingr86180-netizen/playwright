@@ -43,8 +43,9 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
                 method: 'POST',
                 body: '🔔 Vous avez un nouveau message !',
                 headers: {
+                    'Title': 'Vends-Ta-Culotte',
                     'Click': 'https://www.vends-ta-culotte.com',
-                    'Icon' : 'https://www.vends-ta-culotte.com/img/favicon-512x512.png?-1115195293',
+                    'Icon' : 'https://www.vends-ta-culotte.com/img/favicon-512x512.png',
                 },
             });
 
