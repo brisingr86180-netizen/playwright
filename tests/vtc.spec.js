@@ -15,16 +15,21 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
     await page.getByText('Continuer', { exact: true }).click();
 
     const compteur = page.locator('button.ex-tab--chat span.notReadNumber');
-    let valeurPrecedente = await compteur.textContent();
+    let valeurPrecedente = '0';
 
+    if (await compteur.count() > 0) {
+        valeurPrecedente = (await compteur.first().textContent())?.trim() || '0';
+    }
     console.log('Valeur initiale :', valeurPrecedente);
 
-    // Attendre que sa valeur change
-    // Surveillance toutes les minutes
     while (true) {
         await page.waitForTimeout(10000);
 
-        const nouvelleValeur = await compteur.textContent();
+
+        let nouvelleValeur = '0';
+        if (await compteur.count() > 0) {
+            nouvelleValeur = (await compteur.first().textContent())?.trim() || '0';
+        }
 
         console.log(
             `Compteur : ${valeurPrecedente} → ${nouvelleValeur}`
@@ -36,15 +41,13 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
 
             const response = await fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
                 method: 'POST',
-                body: '🔔 Vous avvez un nouveau message !',
+                body: '🔔 Vous avez un nouveau message !',
                 headers: {
                     'Click': 'https://www.vends-ta-culotte.com'
                 },
             });
 
             valeurPrecedente = nouvelleValeur;
-
-            // On mettra ici l'action à effectuer
         }
     }
 
