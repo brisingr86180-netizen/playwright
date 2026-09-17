@@ -34,4 +34,8 @@ jobs:
           ls -la tests/vtc.spec.js
 
       - name: Lancer la surveillance VTC
+        env:
+          VTC_USERNAME: ${{ secrets.VTC_USERNAME }}
+          VTC_PASSWORD: ${{ secrets.VTC_PASSWORD }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: npx playwright test tests/vtc.spec.js

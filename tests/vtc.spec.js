@@ -9,8 +9,8 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
     await page.locator('#UsernameID').waitFor({ state: 'visible' });
 
     // Remplir les identifiants
-    await page.locator('#UsernameID').fill('c-quantin@hotmail.fr');
-    await page.locator('#PasswordID').fill('winmus-2wIdwe-suvdym');
+    await page.locator('#UsernameID').fill(process.env.VTC_USERNAME);
+    await page.locator('#PasswordID').fill(process.env.VTC_PASSWORD);
 
     await page.getByText('Continuer', { exact: true }).click();
 
@@ -34,7 +34,7 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
             console.log('🔔 Le compteur a changé !');
 
 
-            const response = await fetch('https://ntfy.sh/vtc-notif', {
+            const response = await fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
                 method: 'POST',
                 body: '🔔 Vous avvez un nouveau message !'
             });
