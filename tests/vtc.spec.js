@@ -1,115 +1,57 @@
-const { test } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 
-test('Surveillance VTC', async ({ page }) => {
-
+test('Le bouton de connexion ouvre la popup', async ({ page }) => {
     await page.goto('https://www.vends-ta-culotte.com');
 
-    // Connexion
+    await page.locator('.age-confirm__enter').click();
     await page.locator('#login_button').click();
 
+    await page.locator('#UsernameID').waitFor({ state: 'visible' });
+
+    // Remplir les identifiants
     await page.locator('#UsernameID').fill(process.env.VTC_USERNAME);
     await page.locator('#PasswordID').fill(process.env.VTC_PASSWORD);
 
     await page.getByText('Continuer', { exact: true }).click();
 
-    // Attendre que la connexion soit terminée
-    await page.waitForTimeout(3000);
+    const compteur = page.locator('button.ex-tab--chat span.notReadNumber');
+    let valeurPrecedente = '0';
 
-    async function lireContacts() {
+    if (await compteur.count() > 0) {
+        valeurPrecedente = (await compteur.first().textContent())?.trim() || '0';
+    }
+    console.log('Valeur initiale :', valeurPrecedente);
 
-        const contacts = page.locator('.contact-cell__topline');
-        const etat = new Map();
+    while (true) {
+        await page.waitForTimeout(10000);
 
-        for (let i = 0; i < await contacts.count(); i++) {
 
-            const contact = contacts.nth(i);
-
-            const username = (
-                await contact
-                    .locator('.contact-cell__username')
-                    .textContent()
-            )?.trim() || 'Inconnu';
-
-            const compteurLocator =
-                contact.locator('.contact-cell__not-read');
-
-            let compteur = 0;
-
-            if (await compteurLocator.count() > 0) {
-
-                compteur = parseInt(
-                    (await compteurLocator.first().textContent())?.trim() || '0',
-                    10
-                );
-
-            }
-
-            etat.set(username, compteur);
+        let nouvelleValeur = '0';
+        if (await compteur.count() > 0) {
+            nouvelleValeur = (await compteur.first().textContent())?.trim() || '0';
         }
 
-        return etat;
-    }
-
-
-    // État initial
-    let anciensContacts = await lireContacts();
-
-    console.log('=== État initial ===');
-
-    for (const [username, compteur] of anciensContacts) {
-        console.log(`${username} : ${compteur}`);
-    }
-
-
-    // Surveillance permanente
-    while (true) {
-
-        await new Promise(resolve =>
-            setTimeout(resolve, 60000)
+        console.log(
+            `Compteur : ${valeurPrecedente} → ${nouvelleValeur}`
         );
 
-        const nouveauxContacts = await lireContacts();
-
-        for (const [username, nouveauCompteur] of nouveauxContacts) {
-
-            const ancienCompteur =
-                anciensContacts.get(username) ?? 0;
-
-            console.log(
-                `${username} : ${ancienCompteur} → ${nouveauCompteur}`
-            );
+        if (nouvelleValeur !== valeurPrecedente) {
+            console.log('🔔 Le compteur a changé !');
 
 
-            // Nouveau message détecté
-            if (nouveauCompteur > ancienCompteur) {
+            const response = await fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
+                method: 'POST',
+                body: '🔔 Vous avez un nouveau message !',
+                headers: {
+                    'Title': 'Vends-Ta-Culotte',
+                    'Click': 'https://www.vends-ta-culotte.com',
+                    'Icon' : 'https://www.vends-ta-culotte.com/img/favicon-512x512.png',
+                },
+            });
 
-                const nombre =
-                    nouveauCompteur - ancienCompteur;
-
-                const texte = nombre === 1
-                    ? `💬 ${username} vous a envoyé un nouveau message !`
-                    : `💬 ${username} vous a envoyé ${nombre} nouveaux messages !`;
-
-                console.log('🔔', texte);
-
-
-                // Notification ntfy
-                await fetch(
-                    `https://ntfy.sh/${process.env.NTFY_TOPIC}`,
-                    {
-                        method: 'POST',
-                        body: texte,
-                        headers: {
-                            'Title': '💬 Nouveau message',
-                            'Priority': 'high',
-                            'Click': 'https://www.vends-ta-culotte.com'
-                        }
-                    }
-                );
-            }
+            valeurPrecedente = nouvelleValeur;
         }
-
-        anciensContacts = nouveauxContacts;
     }
 
+    console.log('Le compteur a changé !');
 });
