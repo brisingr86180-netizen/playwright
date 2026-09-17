@@ -36,7 +36,10 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
 
             const response = await fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
                 method: 'POST',
-                body: '🔔 Vous avvez un nouveau message !'
+                body: '🔔 Vous avvez un nouveau message !',
+                headers: {
+                    'Click': 'https://www.vends-ta-culotte.com'
+                },
             });
 
             valeurPrecedente = nouvelleValeur;
