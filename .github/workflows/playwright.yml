@@ -1,0 +1,30 @@
+name: Playwright
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm install
+
+      - name: Installer Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Lancer Playwright
+        run: npx playwright test
