@@ -1,3 +1,6 @@
+
+const { test, expect } = require('@playwright/test');
+
 async function lireContacts() {
     const contacts = page.locator('.contact-cell__topline');
     const etat = new Map();
@@ -29,13 +32,14 @@ async function lireContacts() {
     return etat;
 }
 
+
+// Première lecture : on mémorise l'état actuel
 let anciensContacts = await lireContacts();
 
 console.log('État initial des contacts :');
 for (const [username, compteur] of anciensContacts) {
     console.log(`- ${username} : ${compteur}`);
 }
-
 while (true) {
 
     await new Promise(resolve => setTimeout(resolve, 60000));
