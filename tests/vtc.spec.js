@@ -16,6 +16,7 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
 
     const compteur = page.locator('button.ex-tab--chat span.notReadNumber');
     let valeurPrecedente = '0';
+    let minuteDepuisRefresh = 0;
 
     if (await compteur.count() > 0) {
         valeurPrecedente = (await compteur.first().textContent())?.trim() || '0';
@@ -35,9 +36,8 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
             `Compteur : ${valeurPrecedente} → ${nouvelleValeur}`
         );
 
-        if (nouvelleValeur !== valeurPrecedente) {
+        if (parseInt(nouvelleValeur) > parseInt(valeurPrecedente)) {
             console.log('🔔 Le compteur a changé !');
-
 
             const response = await fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
                 method: 'POST',
@@ -51,6 +51,14 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
 
         }
         valeurPrecedente = nouvelleValeur;
+        minuteDepuisRefresh++;
+
+        if (minuteDepuisRefresh >= 30) {
+            await page.reload({
+                waitUntil: 'domcontentloaded'
+            });
+            minuteDepuisRefresh = 0;
+        }   
     }
 
     console.log('Le compteur a changé !');
