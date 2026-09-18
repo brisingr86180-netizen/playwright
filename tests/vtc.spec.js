@@ -49,8 +49,8 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
                 },
             });
 
-            valeurPrecedente = nouvelleValeur;
         }
+        valeurPrecedente = nouvelleValeur;
     }
 
     console.log('Le compteur a changé !');
