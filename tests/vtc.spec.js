@@ -53,7 +53,7 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
         valeurPrecedente = nouvelleValeur;
         minuteDepuisRefresh++;
 
-        if (minuteDepuisRefresh >= 30) {
+        if (minuteDepuisRefresh >= Math.floor(Math.random() * 60) + 30) {
             await page.reload({
                 waitUntil: 'domcontentloaded'
             });
