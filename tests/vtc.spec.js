@@ -17,6 +17,7 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
     const compteur = page.locator('button.ex-tab--chat span.notReadNumber');
     let valeurPrecedente = '0';
     let minuteDepuisRefresh = 0;
+    let randomWait = Math.floor(Math.random() * 60) + 30;
 
     if (await compteur.count() > 0) {
         valeurPrecedente = (await compteur.first().textContent())?.trim() || '0';
@@ -53,11 +54,12 @@ test('Le bouton de connexion ouvre la popup', async ({ page }) => {
         valeurPrecedente = nouvelleValeur;
         minuteDepuisRefresh++;
 
-        if (minuteDepuisRefresh >= Math.floor(Math.random() * 60) + 30) {
+        if (minuteDepuisRefresh >= randomWait) {
             await page.reload({
                 waitUntil: 'domcontentloaded'
             });
             minuteDepuisRefresh = 0;
+            randomWait = Math.floor(Math.random() * 60) + 30;
         }   
     }
 
